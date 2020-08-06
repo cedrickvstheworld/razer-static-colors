@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/bin/python3 ~/Projects/razer-static-colors/razer-static-colors.py
