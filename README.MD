@@ -15,12 +15,12 @@ openrazer python3 package will automatically install afterwards
 
 ## options
 (modify the run command on exec file)
-map single color 
+map single color:
     ```bash
     $ /usr/bin/python3 ~/$path/razer-static-colors.py --s single --h #76b900
     ```
 
-to map custom colors per key, check out samples on schemes folder and I think you probably would know what to do.
+to map custom colors per key, check out samples on schemes folder and I think you probably would know what to do:
     ```bash
     $ /usr/bin/python3 ~/$path/razer-static-colors.py --s area51
     ```
