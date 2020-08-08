@@ -13,17 +13,17 @@ openrazer python3 package will automatically install afterwards
     $ ./exec
     ```
 
-## options
+## Options
 (modify the run command on exec file)
-map single color:
-    ```bash
-    $ /usr/bin/python3 ~/$path/razer-static-colors.py --s single --h #76b900
-    ```
+### map single color.
+```bash
+$ /usr/bin/python3 ~/$path/razer-static-colors.py --s single --h #76b900
+```
 
-to map custom colors per key, check out samples on schemes folder and I think you probably would know what to do:
-    ```bash
-    $ /usr/bin/python3 ~/$path/razer-static-colors.py --s area51
-    ```
+### to map custom colors per key, check out samples on schemes folder and I think you probably would know what to do.
+```bash
+$ /usr/bin/python3 ~/$path/razer-static-colors.py --s area51
+```
 
 ## notes:
 In case some of your keys (it happens on laptops, usually the right most keys) are not colorized. Manually set your Razer keyboard dimensions by editing this file:
