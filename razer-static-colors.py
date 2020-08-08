@@ -3,14 +3,11 @@ import sys
 import os
 import getpass
 import grp
+import argparse
+import json
 
 
 def check_plugdev():
-  """Check if group 'plugdev' exists and current user is its member.
-  If razerCommander is being run from within a flatpak, skip this check.
-  There is apparently no way to check groups with flatpak confinement."""
-  if os.path.isfile('{}/flatpak-info'.format(os.environ['XDG_RUNTIME_DIR'])):
-    return
   try:
     if not getpass.getuser() in grp.getgrnam('plugdev').gr_mem:
       print('''
@@ -49,21 +46,35 @@ colors = [
 
 class StaticColors:
   def __init__(self):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--s')
+    parser.add_argument('--h')
+    args = parser.parse_args()
+    self.scheme = args.s
+    self.hex = args.h
     device_manager = rclient.DeviceManager()
     self.devlist = []
     for device in device_manager.devices:
       self.devlist.append(device)
-    self.initDevices()
+    self.set_scheme()
 
-  def initDevices(self):
+  def set_scheme(self):
     for device in self.devlist:
       try:
         if device.type == 'keyboard':
-          self.colorize(device)
+          if not self.scheme:
+            self.set_default(device)
+          elif self.scheme == 'single':
+            if not self.hex:
+              print('provide a color in hex format by appending --h')
+              exit(1)
+            self.set_single(device)
+          else:
+            self.set_custom(device)
       except:
         pass
   
-  def colorize(self, device):
+  def set_default(self, device):
     row = 0
     color_group_index = 0
     for _i in range(krow):
@@ -80,5 +91,36 @@ class StaticColors:
         col += 1
       row += 1
     device.fx.advanced.draw()
+
+  def set_single(self, device):
+    h = self.hex.lstrip('#')
+    rgb = tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+    row = 0
+    for _i in range(krow):
+      col = 1
+      for _ii in range(kcol):
+        device.fx.advanced.matrix.set(row, col, rgb)
+        if (col >= kcol):
+          col = 1
+          continue
+        col += 1
+      row += 1
+    device.fx.advanced.draw()
+
+  
+  def set_custom(self, device):
+    schemes_path = 'schemes'
+    try:
+      with open('%s/%s.json' % (schemes_path, self.scheme)) as f:
+        scheme_file = json.load(f)
+        for i in scheme_file['layout']:
+          if i['key'] == 'blank':
+            continue
+          device.fx.advanced.matrix.set(i['row'], i['col'], (i['r'], i['g'], i['b']))
+      device.fx.advanced.draw()
+    except FileNotFoundError:
+      print('scheme file not found')
+      return
+    
 
 StaticColors()
