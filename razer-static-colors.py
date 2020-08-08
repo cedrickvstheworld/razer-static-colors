@@ -5,6 +5,7 @@ import getpass
 import grp
 import argparse
 import json
+from pathlib import Path
 
 
 def check_plugdev():
@@ -110,8 +111,9 @@ class StaticColors:
   
   def set_custom(self, device):
     schemes_path = 'schemes'
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     try:
-      with open('%s/%s.json' % (schemes_path, self.scheme)) as f:
+      with open('%s/%s/%s.json' % (ROOT_DIR, schemes_path, self.scheme)) as f:
         scheme_file = json.load(f)
         for i in scheme_file['layout']:
           if i['key'] == 'blank':
