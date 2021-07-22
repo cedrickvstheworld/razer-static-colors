@@ -202,7 +202,6 @@ class StaticColors:
 
     for _i in range(krow):
       for _ii in range(kcol):
-        print(gradient_list[_ii])
         device.fx.advanced.matrix.set(_i, _ii + 1, gradient_list[_ii])
 
     device.fx.advanced.draw()
