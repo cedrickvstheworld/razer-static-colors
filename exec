@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/bin/python3 ~/Projects/razer-static-colors/razer-static-colors.py --s area51-wasd
+/usr/bin/python3 ~/Projects/kickass/razer-static-colors/razer-static-colors.py --s twin --tl "#ff8200" --tr "#ff00ff"

@@ -48,16 +48,36 @@ colors = [
 class StaticColors:
   def __init__(self):
     parser = argparse.ArgumentParser()
+
+    # options
     parser.add_argument('--s')
+
+    # hex for single
     parser.add_argument('--h')
+
+    # twin hex
+    parser.add_argument('--tl')
+    parser.add_argument('--tr')
+
     args = parser.parse_args()
+
     self.scheme = args.s
     self.hex = args.h
+
+    self.twin_l = args.tl
+    self.twin_r = args.tr
+
     device_manager = rclient.DeviceManager()
     self.devlist = []
     for device in device_manager.devices:
       self.devlist.append(device)
     self.set_scheme()
+
+
+  # options
+  # single
+  # twin
+  # {custom}
 
   def set_scheme(self):
     for device in self.devlist:
@@ -70,9 +90,15 @@ class StaticColors:
               print('provide a color in hex format by appending --h')
               exit(1)
             self.set_single(device)
+          elif self.scheme == 'twin':
+            if not self.twin_l or not self.twin_r:
+              print('provide two colors hex --tl, --tr')
+              exit(1)
+            self.set_twin(device)
           else:
             self.set_custom(device)
-      except:
+      except Exception as e:
+        print(e)
         pass
   
   def set_default(self, device):
@@ -124,5 +150,62 @@ class StaticColors:
       print('scheme file not found')
       return
     
+  def set_twin(self, device):
+    l_hex = self.twin_l.lstrip('#')
+    r_hex = self.twin_r.lstrip('#')
 
+    l_rgb = tuple(int(l_hex[i:i+2], 16) for i in (0, 2, 4))
+    r_rgb = tuple(int(r_hex[i:i+2], 16) for i in (0, 2, 4))
+
+    l = {
+      "r": l_rgb[0],
+      "g": l_rgb[1],
+      "b": l_rgb[2],
+    }
+
+    r = {
+      "r": r_rgb[0],
+      "g": r_rgb[1],
+      "b": r_rgb[2],
+    }
+
+    rdiff = abs(l['r'] - r['r'])
+    gdiff = abs(l['g'] - r['g'])
+    bdiff = abs(l['b'] - r['b'])
+
+    rdiff_row_q = rdiff / kcol
+    gdiff_row_q = gdiff / kcol
+    bdiff_row_q = bdiff / kcol
+
+    gradient_list = []
+
+    for i in range(kcol):
+      gradient_list.append((l["r"], l["g"], l["b"]))
+  
+      # r
+      if l['r'] < r['r']:
+        l['r'] = int(round(l['r'] + rdiff_row_q))
+      else:
+        l['r'] = int(round(l['r'] - rdiff_row_q))
+
+      # g
+      if l['g'] < r['g']:
+        l['g'] = int(round(l['g'] + gdiff_row_q))
+      else:
+        l['g'] = int(round(l['g'] - gdiff_row_q))
+
+      # b
+      if l['b'] < r['b']:
+        l['b'] = int(round(l['b'] + bdiff_row_q))
+      else:
+        l['b'] = int(round(l['b'] - bdiff_row_q))
+
+    for _i in range(krow):
+      for _ii in range(kcol):
+        print(gradient_list[_ii])
+        device.fx.advanced.matrix.set(_i, _ii + 1, gradient_list[_ii])
+
+    device.fx.advanced.draw()
+
+# initialize this shit
 StaticColors()
