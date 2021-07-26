@@ -6,6 +6,9 @@ import grp
 import argparse
 import json
 from pathlib import Path
+import pyudev
+import subprocess
+from time import sleep
 
 
 def check_plugdev():
@@ -73,12 +76,10 @@ class StaticColors:
       self.devlist.append(device)
     self.set_scheme()
 
-
   # options
   # single
   # twin
   # {custom}
-
   def set_scheme(self):
     for device in self.devlist:
       try:
@@ -100,7 +101,7 @@ class StaticColors:
       except Exception as e:
         print(e)
         pass
-  
+
   def set_default(self, device):
     row = 0
     color_group_index = 0
@@ -208,3 +209,17 @@ class StaticColors:
 
 # initialize this shit
 StaticColors()
+
+def plugin_plugout_event():
+  context = pyudev.Context()
+  monitor = pyudev.Monitor.from_netlink(context)
+  monitor.filter_by(subsystem='usb')
+  monitor.start()
+  for device in iter(monitor.poll, None):
+      # I can add more logic here, to run different scripts for different devices.
+      if device.action == 'bind':
+        sleep(3)
+        subprocess.run(['%s/exec.sh' % os.path.dirname(os.path.realpath(__file__))])
+
+# handler for replugin event
+plugin_plugout_event()
